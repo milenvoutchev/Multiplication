@@ -38,8 +38,8 @@ var App = {
 			return false;
 		}
 		
-		// prepare html for numbers
-		var newHTML = new String();	
+		// prepare elements for numbers
+		var newElements = new Array();	// use array for fast concatenation
 		app.numbers.forEach(function(number){
 			// prepare number element
 			var element = document.createElement(app.settings.singleElementTag);
@@ -47,11 +47,11 @@ var App = {
 			element.setAttribute("data-number", number);
 			element.setAttribute("class", app.settings.singleElementClass);
 			
-			newHTML += element.outerHTML;
+			newElements.push(element.outerHTML);
 		});			
-
-		// populate template
-		document.getElementById(app.settings.containerId).innerHTML = newHTML;
+		
+		// combine elements to one html & populate template
+		document.getElementById(app.settings.containerId).innerHTML = newElements.join("");
 
 		app.say("showData: app container populated");
 	},
@@ -98,7 +98,7 @@ var App = {
 		var elements = document.getElementById(app.settings.containerId).childNodes;
 
 		numbers.forEach(function(thisNumber){
-			var position = app.numbers.indexOf(thisNumber);
+			var position = app.numbers.indexOf(thisNumber);	// find elements using their index instead of DOM search for speed
 			if ( hightlightOn ) {
 				elements[position].classList.add("on");
 			} else {
