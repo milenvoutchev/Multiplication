@@ -1,116 +1,125 @@
-var App = {
-	settings: {
+var app = (function () {
+    "use strict";
+
+	var settings = {
 		numBegin: 1,
 		numEnd: 144,
 		step: 1,
 		containerId: "app-container",
 		singleElementTag: "span",
 		singleElementClass: "app-number",
+		onClass: "on",
 		sayToConsole: true
-	},
-	numbers: [],
-	init: function () {
-		///<summary> Start the app </summary>
-		var app = this;
+	};
 
-		app.getData();
-		app.showData();
-		app.attachEvents();
-	},
-	getData: function (){
+    var numbers = [];
+
+    var init = function () {
+		///<summary> Start the app </summary>
+
+		getData();
+		showData();
+		attachEvents();
+	};
+
+    var getData = function (){
 		///<summary> Generate our numbers (data) and save to app </summary>
-		var app = this;
-		
-		var numbers = [];
-		for(i = app.settings.numBegin; i<= app.settings.numEnd; i += app.settings.step){
+
+		for(var i = settings.numBegin; i<= settings.numEnd; i += settings.step){
 			numbers.push(i);
 		}
-		app.numbers = numbers;
-		
-		app.say("getData: numbers populated: " + numbers.length);
-	},
-	showData: function () {
-		///<summary> Populate our template and send it to the page </summary>
-		var app = this;
 
-		if ( typeof app.numbers != "object" || app.numbers.length == 0 ){
-			app.say("showData called with no valid data");
+		say("getData: numbers populated: " + numbers.length);
+	};
+
+    var showData = function () {
+		///<summary> Populate our template and send it to the page </summary>
+
+		if ( typeof numbers != "object" || numbers.length == 0 ){
+			say("showData called with no valid data");
 			return false;
 		}
-		
+
 		// prepare elements for numbers
 		var newElements = new Array();	// use array for fast concatenation
-		app.numbers.forEach(function(number){
+		numbers.forEach(function(number){
 			// prepare number element
-			var element = document.createElement(app.settings.singleElementTag);
+			var element = document.createElement(settings.singleElementTag);
 			element.innerText = number;
 			element.setAttribute("data-number", number);
-			element.setAttribute("class", app.settings.singleElementClass);
-			
+			element.setAttribute("class", settings.singleElementClass);
+
 			newElements.push(element.outerHTML);
-		});			
-		
+		});
+
 		// combine elements to one html & populate template
-		document.getElementById(app.settings.containerId).innerHTML = newElements.join("");
+		document.getElementById(settings.containerId).innerHTML = newElements.join("");
 
-		app.say("showData: app container populated");
-	},
-	attachEvents: function () {
+		say("showData: app container populated");
+	};
+
+    var attachEvents = function () {
 		///<summary> Attach events </summary>
-		var app = this;
 
-		var element = document.getElementById(app.settings.containerId);
-		
+		var element = document.getElementById(settings.containerId);
+
 		element.addEventListener("click", function( event ) {
 
 			var currentNumber = event.target.getAttribute("data-number");
-			app.say('click ', currentNumber);
-			var multiples = app.findMiltiples(currentNumber);	// find multiples for clicked number
+			say('click ', currentNumber);
+			var multiples = findMiltiples(currentNumber);	// find multiples for clicked number
 			
 			// check operation (on/off highlight)
 			if ( event.target.classList.contains("on") ){
 				// remove all highlight
-				app.highlightElements(multiples, false);
+				highlightElements(multiples, false);
 			} else {
 				// add highlight
-				app.highlightElements(multiples, true);
+				highlightElements(multiples, true);
 			}
 		}, false);
 
-	},
-	findMiltiples: function (baseNumber) {
+	};
+
+    var findMiltiples = function (baseNumber) {
 		///<summary> Return multiples of number </summary>
-		var app = this;
-		
+
 		var result = [];
-		app.numbers.forEach(function(thisNumber){
+		numbers.forEach(function(thisNumber){
 			if ( thisNumber % baseNumber == 0 ){
 				result.push(thisNumber);
 			}
 		});
 		
 		return result;
-	},
-	highlightElements: function (numbers, hightlightOn) {
+	};
+
+    var highlightElements = function (numbersToHighlight, hightlightOn) {
 		///<summary> Highlight numbers </summary>
-		var app = this;
 
-		var elements = document.getElementById(app.settings.containerId).childNodes;
+		var elements = document.getElementById(settings.containerId).childNodes;
 
-		numbers.forEach(function(thisNumber){
-			var position = app.numbers.indexOf(thisNumber);	// find elements using their index instead of DOM search for speed
+		numbersToHighlight.forEach(function(thisNumber){
+			var position = numbers.indexOf(thisNumber);	// find elements using their index instead of DOM search for speed
 			if ( hightlightOn ) {
-				elements[position].classList.add("on");
+				elements[position].classList.add(settings.onClass);
 			} else {
-				elements[position].classList.remove("on");
+				elements[position].classList.remove(settings.onClass);
 			}
 		});
-		app.say('hightlight for:', numbers);
-	},
-	say: function (message){
+		say('hightlight for:', numbersToHighlight);
+	};
+
+    var say = function (message){
 		///<summary> Central logging method </summary>
-		var app = this;
-		if ( console && console.log && app.settings.sayToConsole) 
+		if ( console && console.log && settings.sayToConsole)
 			console.log( arguments.length > 1 ? arguments : message );
-	}
-}
+	};
+
+    return {
+        init: init,
+        settings: settings,
+        findMiltiples: findMiltiples,
+        highlightElements: highlightElements
+    }
+}());
